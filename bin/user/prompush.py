@@ -73,7 +73,7 @@ import weeutil.weeutil
 
 import requests
 
-import Queue
+import queue as Queue
 import sys
 import syslog
 
@@ -128,7 +128,7 @@ class PromPushThread(weewx.restx.RESTThread):
                  job=DEFAULT_JOB,
                  instance=DEFAULT_INSTANCE,
                  skip_post=False,
-                 max_backlog=sys.maxint,
+                 max_backlog=sys.maxsize,
                  stale=60,
                  log_success=True,
                  log_failure=True,
