@@ -187,7 +187,7 @@ class PromPushThread(weewx.restx.RESTThread):
         if self.skip_post:
             loginfo("-- prompush: skipping post")
         else:
-            for key, val in record.iteritems():
+            for key, val in record.items():
                 if val is None:
                     val = 0.0
 
