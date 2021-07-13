@@ -35,6 +35,15 @@ cloudbase    2122.17697538       gauge
 
 """
 
+import queue as Queue
+import sys
+import syslog
+
+import requests
+import weeutil.weeutil
+import weewx
+import weewx.restx
+
 weather_metrics = {
     'outHumidity':  'gauge',
     'maxSolarRad':  'gauge',
@@ -43,6 +52,9 @@ weather_metrics = {
     'radiation':    'gauge',
     'inDewpoint':   'gauge',
     'inTemp':       'gauge',
+    'extraTemp1':       'gauge',
+    'extraTemp2':       'gauge',
+    'extraTemp3':       'gauge',
     'barometer':    'gauge',
     'windchill':    'gauge',
     'dewpoint':     'gauge',
@@ -67,15 +79,6 @@ weather_metrics = {
 
 __version__ = '1.0.0'
 
-import weewx
-import weewx.restx
-import weeutil.weeutil
-
-import requests
-
-import Queue
-import sys
-import syslog
 
 class PromPush(weewx.restx.StdRESTful):
     """
@@ -128,14 +131,13 @@ class PromPushThread(weewx.restx.RESTThread):
                  job=DEFAULT_JOB,
                  instance=DEFAULT_INSTANCE,
                  skip_post=False,
-                 max_backlog=sys.maxint,
+                 max_backlog=sys.maxsize,
                  stale=60,
                  log_success=True,
                  log_failure=True,
                  timeout=DEFAULT_TIMEOUT,
                  max_tries=DEFAULT_MAX_TRIES,
                  retry_wait=DEFAULT_RETRY_WAIT):
-
 
         super(PromPushThread, self).__init__(
             queue,
@@ -158,7 +160,8 @@ class PromPushThread(weewx.restx.RESTThread):
 
     def post_metrics(self, data):
         # post the weather stats to the prometheus push gw
-        pushgw_url = 'http://' + self.host + ":" + self.port + "/metrics/job/" + self.job
+        pushgw_url = 'http://' + self.host + ":" + \
+            self.port + "/metrics/job/" + self.job
 
         if self.instance is not "":
             pushgw_url += "/instance/" + self.instance
@@ -175,9 +178,8 @@ class PromPushThread(weewx.restx.RESTThread):
                 # something went awry
                 logerr("pushgw post error: %s" % _res.text)
                 return
-        except requests.ConnectionError, e:
+        except requests.ConnectionError as e:
             logerr("pushgw post error: %s" % e.message)
-
 
     def process_record(self, record, dbm):
         _ = dbm
@@ -187,7 +189,7 @@ class PromPushThread(weewx.restx.RESTThread):
         if self.skip_post:
             loginfo("-- prompush: skipping post")
         else:
-            for key, val in record.iteritems():
+            for key, val in record.items():
                 if val is None:
                     val = 0.0
 
@@ -195,23 +197,27 @@ class PromPushThread(weewx.restx.RESTThread):
                     # annotate the submission with the appropriate metric type.
                     # if there's no metric type supplied the pushgw will
                     # annotate with 'untyped'
-                    record_data += "# TYPE %s %s\n" % (str(key), weather_metrics[key])
+                    record_data += "# TYPE %s %s\n" % (
+                        str(key), weather_metrics[key])
 
                 record_data += "%s %s\n" % (str(key), str(val))
 
         self.post_metrics(record_data)
 
 
-#---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 # misc. logging functions
 def logmsg(level, msg):
     syslog.syslog(level, 'prom-push: %s' % msg)
 
+
 def logdbg(msg):
     logmsg(syslog.LOG_DEBUG, msg)
 
+
 def loginfo(msg):
     logmsg(syslog.LOG_INFO, msg)
+
 
 def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
