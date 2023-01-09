@@ -62,10 +62,14 @@ weather_metrics = {
     'inHumidity':   'gauge',
     'windGust':     'gauge',
     'windGustDir':  'gauge',
-    'cloudbase':    'gauge'
+    'cloudbase':    'gauge',
+    'co2':          'gauge',
+    'pm10':         'gauge',
+    'pm2_5':        'gauge',
+    'windrun':      'gauge'
 }
 
-__version__ = '1.0.0'
+__version__ = '1.0.3'
 
 import weewx
 import weewx.restx
@@ -160,7 +164,7 @@ class PromPushThread(weewx.restx.RESTThread):
         # post the weather stats to the prometheus push gw
         pushgw_url = 'http://' + self.host + ":" + self.port + "/metrics/job/" + self.job
 
-        if self.instance is not "":
+        if self.instance != "":
             pushgw_url += "/instance/" + self.instance
 
         try:
@@ -175,8 +179,8 @@ class PromPushThread(weewx.restx.RESTThread):
                 # something went awry
                 logerr("pushgw post error: %s" % _res.text)
                 return
-        except requests.ConnectionError, e:
-            logerr("pushgw post error: %s" % e.message)
+        except requests.ConnectionError as e:
+            logerr("pushgw post error: %s" % e)
 
 
     def process_record(self, record, dbm):
