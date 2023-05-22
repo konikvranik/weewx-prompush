@@ -73,7 +73,7 @@ import weeutil.weeutil
 
 import requests
 
-import queue Queue
+import queue as Queue
 import sys
 import syslog
 
