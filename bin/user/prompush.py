@@ -73,7 +73,7 @@ import weeutil.weeutil
 
 import requests
 
-import Queue
+import queue Queue
 import sys
 import syslog
 
@@ -116,8 +116,8 @@ class PromPushThread(weewx.restx.RESTThread):
 
     DEFAULT_HOST = 'localhost'
     DEFAULT_PORT = '9091'
-    DEFAULT_JOB = 'weewx'
-    DEFAULT_INSTANCE = ''
+    DEFAULT_JOB = 'weather'
+    DEFAULT_INSTANCE = 'Vantage'
     DEFAULT_TIMEOUT = 10
     DEFAULT_MAX_TRIES = 3
     DEFAULT_RETRY_WAIT = 5
@@ -128,7 +128,7 @@ class PromPushThread(weewx.restx.RESTThread):
                  job=DEFAULT_JOB,
                  instance=DEFAULT_INSTANCE,
                  skip_post=False,
-                 max_backlog=sys.maxint,
+                 max_backlog=sys.maxsize,
                  stale=60,
                  log_success=True,
                  log_failure=True,
@@ -160,7 +160,7 @@ class PromPushThread(weewx.restx.RESTThread):
         # post the weather stats to the prometheus push gw
         pushgw_url = 'http://' + self.host + ":" + self.port + "/metrics/job/" + self.job
 
-        if self.instance is not "":
+        if self.instance != "":
             pushgw_url += "/instance/" + self.instance
 
         try:
