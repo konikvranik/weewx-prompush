@@ -92,7 +92,7 @@ class PromPush(weewx.restx.StdRESTful):
             _prom_dict = weeutil.weeutil.accumulateLeaves(
                 config_dict['StdRESTful']['PromPush'], max_level=1)
         except KeyError as e:
-            logerr("config error: missing parameter %s" % e)
+            logging.error("config error: missing parameter %s" % e)
             return
 
         _manager_dict = weewx.manager.get_manager_dict(
@@ -103,7 +103,7 @@ class PromPush(weewx.restx.StdRESTful):
                                           **_prom_dict)
         self.loop_thread.start()
         self.bind(weewx.NEW_LOOP_PACKET, self.new_loop_packet)
-        loginfo("data will be sent to pushgateway at %s:%s" %
+        logging.info("data will be sent to pushgateway at %s:%s" %
                 (_prom_dict['host'], _prom_dict['port']))
 
     def new_loop_packet(self, event):
