@@ -76,6 +76,7 @@ import requests
 import queue as Queue
 import sys
 import syslog
+import logging
 
 class PromPush(weewx.restx.StdRESTful):
     """
@@ -167,16 +168,16 @@ class PromPushThread(weewx.restx.RESTThread):
             _res = requests.post(url=pushgw_url,
                                  data=data,
                                  headers={'Content-Type': 'application/octet-stream'})
-            loginfo("pushgw post return code - %s" % _res.status_code)
+            logging.info("pushgw post return code - %s" % _res.status_code)
             if 200 <= _res.status_code <= 299:
                 # success
                 return
             else:
                 # something went awry
-                logerr("pushgw post error: %s" % _res.text)
+                logging.error("pushgw post error: %s" % _res.text)
                 return
         except requests.ConnectionError as e:
-            logerr("pushgw post error: %s" % e.message)
+            logging.error("pushgw post error: %s" % e.message)
 
 
     def process_record(self, record, dbm):
@@ -185,7 +186,7 @@ class PromPushThread(weewx.restx.RESTThread):
         record_data = ''
 
         if self.skip_post:
-            loginfo("-- prompush: skipping post")
+            logging.info("-- prompush: skipping post")
         else:
             for key, val in record.items():
                 if val is None:
