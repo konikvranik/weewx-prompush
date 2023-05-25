@@ -36,33 +36,33 @@ cloudbase    2122.17697538       gauge
 """
 
 weather_metrics = {
-    'outHumidity':  'gauge',
-    'maxSolarRad':  'gauge',
-    'altimeter':    'gauge',
-    'heatindex':    'gauge',
-    'radiation':    'gauge',
-    'inDewpoint':   'gauge',
-    'inTemp':       'gauge',
-    'barometer':    'gauge',
-    'windchill':    'gauge',
-    'dewpoint':     'gauge',
+    'weather_outHumidity':  'gauge',
+    'weather_maxSolarRad':  'gauge',
+    'weather_altimeter':    'gauge',
+    'weather_heatindex':    'gauge',
+    'weather_radiation':    'gauge',
+    'weather_inDewpoint':   'gauge',
+    'weather_inTemp':       'gauge',
+    'weather_barometer':    'gauge',
+    'weather_windchill':    'gauge',
+    'weather_dewpoint':     'gauge',
     # 'windrun':
-    'rain':         'gauge',
-    'humidex':      'gauge',
-    'pressure':     'gauge',
+    'weather_rain':         'gauge',
+    'weather_humidex':      'gauge',
+    'weather_pressure':     'gauge',
     # ET':
-    'rainRate':     'gauge',
+    'weather_rainRate':     'gauge',
     # 'usUnits':
-    'appTemp':      'gauge',
-    'UV':           'gauge',
+    'weather_appTemp':      'gauge',
+    'weather_UV':           'gauge',
     # dateTime
-    'windDir':      'gauge',
-    'outTemp':      'gauge',
-    'windSpeed':    'gauge',
-    'inHumidity':   'gauge',
-    'windGust':     'gauge',
-    'windGustDir':  'gauge',
-    'cloudbase':    'gauge'
+    'weather_windDir':      'gauge',
+    'weather_outTemp':      'gauge',
+    'weather_windSpeed':    'gauge',
+    'weather_inHumidity':   'gauge',
+    'weather_windGust':     'gauge',
+    'weather_windGustDir':  'gauge',
+    'weather_cloudbase':    'gauge'
 }
 
 __version__ = '1.0.0'
