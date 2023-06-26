@@ -198,7 +198,7 @@ class PromPushThread(weewx.restx.RESTThread):
                     # annotate with 'untyped'
                     record_data += "# TYPE %s %s\n" % (str(key), weather_metrics[key])
 
-                record_data += "%s %s\n" % (str(key), str(val))
+                record_data += "%s %s\n" % ("weather_" + str(key), str(val))
 
         self.post_metrics(record_data)
 
