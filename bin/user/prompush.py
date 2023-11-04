@@ -74,10 +74,14 @@ weather_metrics = {
     'weather_inHumidity': 'gauge',
     'weather_windGust': 'gauge',
     'weather_windGustDir': 'gauge',
-    'weather_cloudbase': 'gauge'
+    'weather_cloudbase': 'gauge',
+    'co2':          'gauge',
+    'pm10':         'gauge',
+    'pm2_5':        'gauge',
+    'windrun':      'gauge'
 }
 
-__version__ = '1.0.0'
+__version__ = '1.0.3'
 
 import weewx
 import weewx.restx
@@ -190,7 +194,7 @@ class PromPushThread(weewx.restx.RESTThread):
                 logging.error("pushgw post error: %s" % _res.text)
                 return
         except requests.ConnectionError as e:
-            logging.error("pushgw post error: %s" % e.message)
+            logging.error("pushgw post error: %s" % e)
 
     def process_record(self, record, dbm):
         _ = dbm
