@@ -35,34 +35,46 @@ cloudbase    2122.17697538       gauge
 
 """
 
+import queue as Queue
+import sys
+import syslog
+
+import requests
+import weeutil.weeutil
+import weewx
+import weewx.restx
+
 weather_metrics = {
-    'weather_outHumidity':  'gauge',
-    'weather_maxSolarRad':  'gauge',
-    'weather_altimeter':    'gauge',
-    'weather_heatindex':    'gauge',
-    'weather_radiation':    'gauge',
-    'weather_inDewpoint':   'gauge',
-    'weather_inTemp':       'gauge',
-    'weather_barometer':    'gauge',
-    'weather_windchill':    'gauge',
-    'weather_dewpoint':     'gauge',
+    'weather_outHumidity': 'gauge',
+    'weather_maxSolarRad': 'gauge',
+    'weather_altimeter': 'gauge',
+    'weather_heatindex': 'gauge',
+    'weather_radiation': 'gauge',
+    'weather_inDewpoint': 'gauge',
+    'weather_inTemp': 'gauge',
+    'weather_barometer': 'gauge',
+    'weather_extraTemp1': 'gauge',
+    'weather_extraTemp2': 'gauge',
+    'weather_extraTemp3': 'gauge',
+    'weather_windchill': 'gauge',
+    'weather_dewpoint': 'gauge',
     # 'windrun':
-    'weather_rain':         'gauge',
-    'weather_humidex':      'gauge',
-    'weather_pressure':     'gauge',
+    'weather_rain': 'gauge',
+    'weather_humidex': 'gauge',
+    'weather_pressure': 'gauge',
     # ET':
-    'weather_rainRate':     'gauge',
+    'weather_rainRate': 'gauge',
     # 'usUnits':
-    'weather_appTemp':      'gauge',
-    'weather_UV':           'gauge',
+    'weather_appTemp': 'gauge',
+    'weather_UV': 'gauge',
     # dateTime
-    'weather_windDir':      'gauge',
-    'weather_outTemp':      'gauge',
-    'weather_windSpeed':    'gauge',
-    'weather_inHumidity':   'gauge',
-    'weather_windGust':     'gauge',
-    'weather_windGustDir':  'gauge',
-    'weather_cloudbase':    'gauge'
+    'weather_windDir': 'gauge',
+    'weather_outTemp': 'gauge',
+    'weather_windSpeed': 'gauge',
+    'weather_inHumidity': 'gauge',
+    'weather_windGust': 'gauge',
+    'weather_windGustDir': 'gauge',
+    'weather_cloudbase': 'gauge'
 }
 
 __version__ = '1.0.0'
@@ -77,6 +89,7 @@ import queue as Queue
 import sys
 import syslog
 import logging
+
 
 class PromPush(weewx.restx.StdRESTful):
     """
@@ -104,7 +117,7 @@ class PromPush(weewx.restx.StdRESTful):
         self.loop_thread.start()
         self.bind(weewx.NEW_LOOP_PACKET, self.new_loop_packet)
         logging.info("data will be sent to pushgateway at %s:%s" %
-                (_prom_dict['host'], _prom_dict['port']))
+                     (_prom_dict['host'], _prom_dict['port']))
 
     def new_loop_packet(self, event):
         self.loop_queue.put(event.packet)
@@ -137,7 +150,6 @@ class PromPushThread(weewx.restx.RESTThread):
                  max_tries=DEFAULT_MAX_TRIES,
                  retry_wait=DEFAULT_RETRY_WAIT):
 
-
         super(PromPushThread, self).__init__(
             queue,
             protocol_name='PromPush',
@@ -159,7 +171,8 @@ class PromPushThread(weewx.restx.RESTThread):
 
     def post_metrics(self, data):
         # post the weather stats to the prometheus push gw
-        pushgw_url = 'http://' + self.host + ":" + self.port + "/metrics/job/" + self.job
+        pushgw_url = 'http://' + self.host + ":" + \
+                     self.port + "/metrics/job/" + self.job
 
         if self.instance != "":
             pushgw_url += "/instance/" + self.instance
@@ -179,7 +192,6 @@ class PromPushThread(weewx.restx.RESTThread):
         except requests.ConnectionError as e:
             logging.error("pushgw post error: %s" % e.message)
 
-
     def process_record(self, record, dbm):
         _ = dbm
 
@@ -196,23 +208,27 @@ class PromPushThread(weewx.restx.RESTThread):
                     # annotate the submission with the appropriate metric type.
                     # if there's no metric type supplied the pushgw will
                     # annotate with 'untyped'
-                    record_data += "# TYPE %s %s\n" % (str(key), weather_metrics[key])
+                    record_data += "# TYPE %s %s\n" % (
+                        str(key), weather_metrics[key])
 
                 record_data += "%s %s\n" % ("weather_" + str(key), str(val))
 
         self.post_metrics(record_data)
 
 
-#---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 # misc. logging functions
 def logmsg(level, msg):
     syslog.syslog(level, 'prom-push: %s' % msg)
 
+
 def logdbg(msg):
     logmsg(syslog.LOG_DEBUG, msg)
 
+
 def loginfo(msg):
     logmsg(syslog.LOG_INFO, msg)
+
 
 def logerr(msg):
     logmsg(syslog.LOG_ERR, msg)
