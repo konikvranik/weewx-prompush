@@ -35,13 +35,7 @@ cloudbase    2122.17697538       gauge
 
 """
 
-import queue as Queue
-import sys
-import syslog
-
-import requests
 import weeutil.weeutil
-import weewx
 import weewx.restx
 
 weather_metrics = {
@@ -75,10 +69,10 @@ weather_metrics = {
     'weather_windGust': 'gauge',
     'weather_windGustDir': 'gauge',
     'weather_cloudbase': 'gauge',
-    'co2':          'gauge',
-    'pm10':         'gauge',
-    'pm2_5':        'gauge',
-    'windrun':      'gauge'
+    'co2': 'gauge',
+    'pm10': 'gauge',
+    'pm2_5': 'gauge',
+    'windrun': 'gauge'
 }
 
 __version__ = '1.0.3'
